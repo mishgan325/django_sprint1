@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 
 posts = [
@@ -40,23 +41,26 @@ posts = [
                 жалкие обломки,  да и те видны только во время отлива.
                 Весь этот день я хлопотал  около вещей: укрывал и
                 укутывал их, чтобы не испортились от дождя.''',
-    },
+    }
 ]
 
 
 def index(request):
     template = 'blog/index.html'
-    context = {'posts': posts}
+    context = {'posts': posts[::-1]}
     return render(request, template, context)
 
 
-def post_detail(request, id):
+def post_detail(request, post_id):
     template = 'blog/detail.html'
-    context = {'post': posts[id]}
-    return render(request, template, context)
+    for post in posts:
+        if post['id'] == post_id:
+            context = {'post': post}
+            return render(request, template, context)
+    raise Http404(f'Пост с id:{post_id} не найден')
 
 
 def category_posts(request, category_slug):
     template = 'blog/category.html'
     context = {'category_slug': category_slug}
-    return render(template, request, context)
+    return render(request, template, context)
